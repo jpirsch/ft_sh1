@@ -1,0 +1,104 @@
+**************OPERATOR LIST********************]
+OPERATOR_OR			= ||
+OPERATOR_AND		= &&
+
+OPERATOR_PIPE		= |
+
+OPERATOR_RED_RIGHT 	= >
+OPERATOR_RED_LEFT	= <
+
+OPERATOR_RED_DRIGHT = >>
+OPERATOR_RED_DLEFT	= <<
+
+
+[**************EXPRESSIONS LIST********************]
+
+start		:=			left_red | exp
+
+exp			:= 			or_exp | and_exp
+
+or_exp		:=			pipe_exp [OPERATOR_OR exp]?
+
+and_expr	:=			pipe_exp [OPERATOR_AND exp]?
+
+pipe_exp	:=			command [OPERATOR_PIPE exp]? | right_red
+
+right_red  	:=			[OPERATOR_RIGHT_RED command] | [OPERATOR_RIGHT_DRED command] 
+
+left_red	:=			[OPERATIR_LEFT_RED command] [exp]? | [OPERATIR_LEFT_DRED command] [exp]?
+
+command		:=			com [com_arg]*
+
+com			:=			WORD
+
+com_arg		:=			WORD
+
+right_red  	:=			OPERATOR_RED [COMMAND_FILE]+
+
+
+
+[*******************TESTING*********************]
+
+
+
+
+right_red			:=		OPERATOR_RED_RIGHT [COMMAND_FILE]+ - NOTHING
+
+right_double_red 	:=		OPERATOR_RED_DRIGHT [COMMAN_FILE]+ - NOTHING
+
+left_red			:=		NOTHING -  OPERATOR_RED_LEFT [COMMAND_FILE]+
+
+
+
+
+
+
+< 						Ouvre un fichier et ecrit dans la commande avec un pipe
+
+<<						HEREDOC, permet d'ecrire sur l'entree standard et attend le mot
+						definir pour finir l'input
+
+>						Ouvre/Creer et efface tout dans le fichier puis ecris dedans
+
+>>						Ouvre le fichier et ecrit a la fin de celui-ci
+
+=============
+Algo <
+=============
+1. Verifier l'existance du fichier
+	- Si fichier existe
+		a) 	Creer un pipe et lui assigner le FD du fichier ouvert
+		b) 	Lancer la commande dans le fork et fermer un cote du pipe
+		c) 	A la place de lancer la deuxime commande, on ferme un cote du pipe et on read du FD sur 
+			l'autre cote
+	- Sinon on ecrit : No such file or directory.
+
+
+=============
+Algo <<
+=============
+a) 	Creer un pipe et on assigne au pipre le mot de fin du HEREDOC
+b) 	Lancer la commande dans le fork et fermer un cote du pipe
+c) 	A la place de lancer la deuxime commande dans la 2eme partie du fork,
+	et on redirige l'entree standart dans l'autre cote du pipe tout en prennant soin de verifier
+	si le mot saisit pour arreter le HEREDOC n'est pas encore la.
+
+
+=============
+Algo > et >>
+=============
+1. Test de permission sur le fichier
+	- Si ok
+		a)	Creer un pipe, ouvrire le fichier avec les bons droits et assigner au pipe le FD
+			du fichier ouvert
+		b)	Dans une partie du fork on va lire fermer une partie du PIPE et lire avec read sur l'autre
+			partie
+		c)	Enfin dans la 2eme partie du fork on va fermer une partie du pipe et lancer la commande
+			qui devra lire sur le cote du pipe non ferme.
+	- Sinon print : "Permission denied."
+
+
+TODO:
+
+- chained redirection to the left or to the right...
+- 

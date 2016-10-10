@@ -1,0 +1,44 @@
+int		hash_calc(char *bin)
+{
+	int i;
+	int k;
+
+	i = 0;
+	k = 0;
+	while (bin[i])
+	{
+		k += bin[i];
+		i++;
+	}
+	return (i);
+}
+
+int		hash(t_env *e, char *bin, int j)
+{
+	int k;
+
+	k = hash_calc(bin) % j;
+	while ((e->hashtab[k]))
+		k++;
+	return (k);
+}
+
+int		rev_hash(t_env *e, char *bin)
+{
+	int		k;
+	char	*hashbin;
+
+	k = hash_calc(bin) % e->hc;
+	while (k < e->hc && (e->hashtab[k]))
+	{
+		hashbin = ft_strrchr(*(char**)e->hashtab[k]->content, '/') + 1;
+		if (!hashbin)
+			return (2 * e->hc);
+//		if (hash_calc(bin) != hash_calc(hashbin))
+//			return (2 * e->hc);
+		if (!(ft_strcmp(bin, hashbin)))
+			return (k);
+		k++;
+	}
+	return (2 * e->hc);
+}

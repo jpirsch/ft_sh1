@@ -1,0 +1,25 @@
+main
+	init t_env : 
+					typedef struct	s_env
+					{
+						char		**env;
+						char		**av;
+						char		**path;
+						int			ac;
+					}				t_env;
+
+
+	prompt
+	get_next_line
+		->parse cmd
+		->exec
+
+Parsing :
+	->trim, split
+	->lexer
+	->parser
+	if av[0] in hashtable, and parse error, -> help man error
+	else -> unknown command
+
+
+
